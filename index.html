@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算術平均回報率計算練習</title>
+    
+    <!-- 配置與引入 MathJax 確保 LaTeX 公式完美渲染 -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 680px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .mode-banner {
+            background-color: #f39c12;
+            color: white;
+            text-align: center;
+            padding: 6px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .problem-statement {
+            background-color: #eef7fc;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            font-size: 1.1em;
+            color: #34495e;
+            margin-bottom: 25px;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+
+        .question-step {
+            margin-bottom: 20px;
+            background: #fafbfc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e1e4e8;
+            transition: all 0.3s ease;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .btn-toggle {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            color: #7f8c8d;
+            padding: 4px 10px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-toggle:hover {
+            background-color: #bdc3c7;
+            color: #2c3e50;
+        }
+
+        .step-body {
+            transition: all 0.3s ease;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"] {
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            width: 320px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+        }
+
+        .btn-submit {
+            padding: 10px 16px;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+
+        .status-icon {
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 25px;
+        }
+
+        .status-icon.correct {
+            color: #2ecc71;
+        }
+
+        .status-icon.incorrect {
+            color: #e74c3c;
+        }
+
+        .evaluated-result {
+            font-size: 1em;
+            font-weight: bold;
+            color: #2980b9;
+            margin-left: 5px;
+        }
+
+        .hint {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .solution-box {
+            display: none;
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #fff9e6;
+            border: 1px solid #ffe599;
+            border-radius: 6px;
+            color: #d68910;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+
+        .solution-divider {
+            margin: 12px 0;
+            border-top: 1px dashed #ffe599;
+        }
+
+        .footer-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-history {
+            padding: 8px 14px;
+            font-size: 0.9em;
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-history:hover {
+            background-color: #7f8c8d;
+        }
+
+        .btn-next-q {
+            background-color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .btn-next-q:hover {
+            background-color: #27ae60;
+        }
+
+        .score-board {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>算術平均回報率計算練習</h2>
+    
+    <div id="mode-banner" class="mode-banner">👀 正在檢視歷史作答紀錄（唯讀模式）</div>
+
+    <div id="problem" class="problem-statement">
+        載入中...
+    </div>
+
+    <!-- Step -->
+    <div id="step-mean" class="question-step">
+        <div class="step-header">
+            <label for="ans-mean">求算術平均回報率 (%)：</label>
+            <button class="btn-toggle" onclick="toggleStep('mean')">摺疊 🔼</button>
+        </div>
+        <div class="step-body" id="body-mean">
+            <div class="input-group">
+                <input type="text" id="ans-mean" placeholder="例: (9/7+11/9+15/11)/3-1 或 15.5">
+                <button class="btn-submit" id="btn-mean" onclick="submitAnswer()">提交</button>
+                <span id="icon-mean" class="status-icon"></span>
+                <span id="eval-mean" class="evaluated-result"></span>
+            </div>
+            <div class="hint">可輸入算式（如 (P1/P0+P2/P1+...)/N - 1）或直接輸入數值，按 Enter 提交</div>
+            <div id="solution-mean" class="solution-box"></div>
+        </div>
+    </div>
+
+    <div class="footer-panel">
+        <div class="history-controls" id="history-controls">
+            <button class="btn-history" id="btn-prev-history" onclick="viewHistory(-1)" style="display:none;">⬅️ 上一題</button>
+            <span id="history-label" style="font-size: 0.85em; color: #7f8c8d; display:none;"></span>
+            <button class="btn-history" id="btn-next-history" onclick="viewHistory(1)" style="display:none;">下一題紀錄 ➡️</button>
+            <button class="btn-history" id="btn-back-current" onclick="backToCurrent()" style="display:none; background-color: #2980b9;">返回當前題目</button>
+            
+            <button class="btn-history btn-next-q" onclick="nextQuestion()">換下一題 ➡️</button>
+        </div>
+        <div class="score-board">
+            已完成題目：<span id="completed-count">0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentData = {};
+    let completedCount = 0;
+    
+    let questionHistory = [];
+    let viewingHistoryIndex = null;
+
+    function safeEval(str) {
+        try {
+            const sanitized = str.replace(/[^\d.+\-*/() ]/g, '');
+            if (!sanitized.trim()) return NaN;
+            return Function(`'use strict'; return (${sanitized})`)();
+        } catch (e) {
+            return NaN;
+        }
+    }
+
+    function formatResult(val, decimals = 2) {
+        return Number(val).toFixed(decimals);
+    }
+
+    function toggleStep(step) {
+        const body = document.getElementById(`body-${step}`);
+        const btn = document.querySelector(`#step-${step} .btn-toggle`);
+        if (body.style.display === 'none') {
+            body.style.display = 'block';
+            btn.innerText = '摺疊 🔼';
+        } else {
+            body.style.display = 'none';
+            btn.innerText = '展開 🔽';
+        }
+    }
+
+    function generateQuestion() {
+        const numPrices = Math.floor(Math.random() * 4) + 3; // 3 至 6 個價格
+        
+        let prices = [];
+        let currentP = Math.floor(Math.random() * 30) + 10;
+        prices.push(currentP);
+
+        for (let i = 1; i < numPrices; i++) {
+            let diff = Math.floor(Math.random() * 12) - 3;
+            if (diff === 0) diff = 2;
+            currentP = currentP + diff;
+            if (currentP < 3) currentP = 3;
+            prices.push(currentP);
+        }
+
+        let returns = [];
+        for (let i = 1; i < prices.length; i++) {
+            let r = (prices[i] - prices[i-1]) / prices[i-1];
+            returns.push(r);
+        }
+
+        let sumReturns = returns.reduce((a, b) => a + b, 0);
+        let arithMeanDec = sumReturns / returns.length;
+        let arithMeanPct = arithMeanDec * 100;
+
+        currentData = {
+            prices,
+            returns,
+            answerDec: arithMeanDec,
+            answerPct: arithMeanPct,
+            userInput: '',
+            evalText: '',
+            status: ''
+        };
+
+        renderCurrentQuestion();
+        resetForm();
+    }
+
+    // 生成解法 HTML（簡易解法放上面，詳細解法放下面，全部採用 LaTeX 渲染）
+    function getSolutionHTML(item) {
+        // 1. 簡易解法內容（放上面）
+        let simpleFractions = [];
+        for (let i = 1; i < item.prices.length; i++) {
+            simpleFractions.push(`\\frac{${item.prices[i]}}{${item.prices[i-1]}}`);
+        }
+        let simpleSum = simpleFractions.join(' + ');
+        let simpleLaTeX = `$$\\frac{${simpleSum}}{${item.returns.length}} - 1 = \\mathbf{${item.answerPct.toFixed(2)}\\%}$$`;
+
+        let simpleSection = `⚡ <strong>簡易算式（直接輸入計算機）：</strong><br>` + simpleLaTeX;
+
+        // 2. 詳細解法內容（放下面）
+        let returnsDetail = item.returns.map((r, idx) => {
+            let p1 = item.prices[idx+1];
+            let p0 = item.prices[idx];
+            return `第 ${idx+1} 期回報率 $R_{${idx+1}} = \\frac{${p1} - ${p0}}{${p0}} = ${(r*100).toFixed(2)}\\%$`;
+        }).join('<br>');
+
+        let sumStr = item.returns.map(r => `${(r*100).toFixed(2)}%`).join(' + ');
+        let detailedLaTeX = `$$\\text{算術平均回報率} = \\frac{${sumStr}}{${item.returns.length}} = \\mathbf{${item.answerPct.toFixed(2)}\\%}$$`;
+
+        let detailedSection = `💡 <strong>詳細解法：</strong><br>` +
+            `${returnsDetail}<br><br>` + detailedLaTeX;
+
+        // 組合：簡易解法在上，詳細解法在下
+        return simpleSection + `<div class="solution-divider"></div>` + detailedSection;
+    }
+
+    function renderCurrentQuestion() {
+        let priceListStr = currentData.prices.join(', ');
+        document.getElementById('problem').innerHTML = 
+            `某投資工具在過去幾年的價格為：<br><strong style="font-size: 1.2em; color: #2980b9;">${priceListStr}</strong><br>試求其<strong>算術平均回報率</strong>。`;
+
+        document.getElementById('solution-mean').innerHTML = getSolutionHTML(currentData);
+
+        // 重新渲染 MathJax 公式
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function resetForm() {
+        const input = document.getElementById('ans-mean');
+        input.value = '';
+        input.disabled = false;
+
+        document.getElementById('solution-mean').style.display = 'none';
+        document.getElementById('body-mean').style.display = 'block';
+        document.querySelector('#step-mean .btn-toggle').innerText = '摺疊 🔼';
+
+        document.getElementById('eval-mean').innerText = '';
+        document.getElementById('icon-mean').innerText = '';
+        document.getElementById('icon-mean').className = 'status-icon';
+
+        document.getElementById('mode-banner').style.display = 'none';
+        updateHistoryButtonsVisibility();
+    }
+
+    function submitAnswer() {
+        if (viewingHistoryIndex !== null) return; 
+
+        const input = document.getElementById('ans-mean');
+        const icon = document.getElementById('icon-mean');
+        const evalSpan = document.getElementById('eval-mean');
+        document.getElementById('solution-mean').style.display = 'block';
+        currentData.userInput = input.value;
+
+        if (!input.value.trim()) {
+            icon.innerText = '⚠️'; 
+            evalSpan.innerText = '(未作答)';
+            currentData.status = 'empty'; 
+            return;
+        }
+
+        let userVal = safeEval(input.value);
+
+        if (isNaN(userVal)) {
+            icon.innerText = '✗'; 
+            icon.className = 'status-icon incorrect'; 
+            evalSpan.innerText = '算式錯誤';
+            currentData.status = 'incorrect'; 
+            return;
+        }
+
+        let isCorrect = false;
+        let displayed = 0;
+
+        if (Math.abs(userVal - currentData.answerDec) < 0.001) {
+            isCorrect = true;
+            displayed = userVal * 100;
+        } else if (Math.abs(userVal - currentData.answerPct) < 0.1) {
+            isCorrect = true;
+            displayed = userVal;
+        } else {
+            displayed = userVal > 1 ? userVal : userVal * 100;
+        }
+
+        evalSpan.innerText = `= ${formatResult(displayed, 2)}%`;
+        currentData.evalText = evalSpan.innerText;
+
+        if (isCorrect) {
+            icon.innerText = '✓'; 
+            icon.className = 'status-icon correct'; 
+            currentData.status = 'correct';
+        } else {
+            icon.innerText = '✗'; 
+            icon.className = 'status-icon incorrect'; 
+            currentData.status = 'incorrect';
+        }
+
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    function nextQuestion() {
+        if (viewingHistoryIndex !== null) {
+            backToCurrent();
+        }
+
+        questionHistory.push(JSON.parse(JSON.stringify(currentData)));
+        completedCount++;
+        document.getElementById('completed-count').innerText = completedCount;
+        
+        generateQuestion();
+    }
+
+    function updateHistoryButtonsVisibility() {
+        const hasHistory = questionHistory.length > 0;
+        document.getElementById('btn-prev-history').style.display = hasHistory ? 'inline-block' : 'none';
+        document.getElementById('history-label').style.display = hasHistory ? 'inline-block' : 'none';
+    }
+
+    function viewHistory(direction) {
+        if (viewingHistoryIndex === null) {
+            if (questionHistory.length === 0) return;
+            viewingHistoryIndex = questionHistory.length - 1;
+        } else {
+            viewingHistoryIndex += direction;
+            if (viewingHistoryIndex >= questionHistory.length) {
+                backToCurrent();
+                return;
+            }
+            if (viewingHistoryIndex < 0) {
+                viewingHistoryIndex = 0;
+            }
+        }
+
+        renderHistoryItem(viewingHistoryIndex);
+    }
+
+    function renderHistoryItem(index) {
+        const item = questionHistory[index];
+        
+        let priceListStr = item.prices.join(', ');
+        document.getElementById('problem').innerHTML = 
+            `某投資工具在過去幾年的價格為：<br><strong style="font-size: 1.2em; color: #2980b9;">${priceListStr}</strong><br>試求其<strong>算術平均回報率</strong>。`;
+
+        document.getElementById('ans-mean').value = item.userInput || '';
+        document.getElementById('eval-mean').innerText = item.evalText || '';
+        
+        const icon = document.getElementById('icon-mean');
+        if (item.status === 'correct') {
+            icon.innerText = '✓'; icon.className = 'status-icon correct';
+        } else if (item.status === 'incorrect') {
+            icon.innerText = '✗'; icon.className = 'status-icon incorrect';
+        } else if (item.status === 'empty') {
+            icon.innerText = '⚠️'; icon.className = 'status-icon';
+        } else {
+            icon.innerText = ''; icon.className = 'status-icon';
+        }
+
+        document.getElementById('ans-mean').disabled = true;
+        document.getElementById('solution-mean').style.display = 'block';
+        document.getElementById('body-mean').style.display = 'block';
+
+        document.getElementById('solution-mean').innerHTML = getSolutionHTML(item);
+
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+
+        document.getElementById('mode-banner').style.display = 'block';
+        document.getElementById('history-label').innerText = `紀錄第 ${index + 1} / ${questionHistory.length} 題`;
+        document.getElementById('btn-prev-history').style.display = index > 0 ? 'inline-block' : 'inline-block';
+        document.getElementById('btn-next-history').style.display = index < questionHistory.length - 1 ? 'inline-block' : 'none';
+        document.getElementById('btn-back-current').style.display = 'inline-block';
+    }
+
+    function backToCurrent() {
+        viewingHistoryIndex = null;
+        renderCurrentQuestion();
+        resetForm();
+    }
+
+    document.getElementById('ans-mean').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitAnswer();
+        }
+    });
+
+    generateQuestion();
+</script>
+
+</body>
+</html>
